@@ -14,13 +14,13 @@ export const Footer = () => {
       style={[
         styles.footer,
         {
-          backgroundColor: theme.footer,
-          borderColor: theme.border || "#ccc", // cor do tema para borda (fallback)
+          backgroundColor: theme.background,
+          borderColor: theme.border || "#ccc",
         },
       ]}
     >
       <TouchableOpacity onPress={() => navigation.navigate("Home")}>
-        <FontAwesome name="home" size={28} color={theme.icon} />
+        <FontAwesome name="home" size={30} color={theme.icon} />
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate("History")}>
@@ -28,7 +28,7 @@ export const Footer = () => {
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
-        <Ionicons name="settings" size={28} color={theme.icon} />
+        <Ionicons name="settings" size={30} color={theme.icon} />
       </TouchableOpacity>
     </View>
   );
@@ -42,8 +42,9 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 24,
     position: "absolute",
-    bottom: 15,
+    bottom: 0,
     width: "100%",
+    height: "10%",
     borderTopWidth: 1,
   },
 });

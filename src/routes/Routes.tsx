@@ -9,8 +9,9 @@ export type RootStackParamList = {
   Home: undefined;
   History: undefined;
   Forms: undefined;
-  Result: undefined;
+
   Settings: undefined;
+  Result: { answers: (number | null)[] };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

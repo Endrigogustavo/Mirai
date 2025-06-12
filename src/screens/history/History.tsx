@@ -10,13 +10,8 @@ import { FontAwesome, Entypo, MaterialIcons } from "@expo/vector-icons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../../routes/Routes";
 import { useTheme } from "../../context/themeContext";
+import projects from '../../database/project.json';
 
-const projects = [
-  { id: "1", title: "Projeto A - TRL 3" },
-  { id: "2", title: "Projeto B - TRL 7" },
-  { id: "3", title: "Projeto C - TRL 8" },
-  { id: "4", title: "Projeto D - TRL 2" },
-];
 
 export const History = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
