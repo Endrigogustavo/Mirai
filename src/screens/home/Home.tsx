@@ -3,14 +3,20 @@ import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../../routes/Routes";
+import { useTheme } from "../../context/themeContext";
+
 
 export const Home = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const { theme, toggleTheme, isDark } = useTheme();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Calculadora{"\n"}TRL</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, { color: theme.text }]}>
+          Calculadora{"\n"}TRL
+        </Text>
+        <Text style={[styles.subtitle, { color: theme.subtitle }]}>
           Uma ferramenta de mensuração{"\n"}
           que mostra o grau de maturidade de{"\n"}
           sua tecnologia!
@@ -19,30 +25,16 @@ export const Home = () => {
 
       <View style={styles.centerContent}>
         <TouchableOpacity
-          style={styles.button}
+          style={[styles.button, { backgroundColor: theme.buttonBackground }]}
           onPress={() => navigation.navigate("Forms")}
         >
-          <Text style={styles.buttonText}>Iniciar Avaliação</Text>
+          <Text style={[styles.buttonText, { color: theme.buttonText }]}>
+            Iniciar Avaliação
+          </Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.footer}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Home")}
-          style={{ padding: 10 }}
-        >
-          <FontAwesome name="home" size={28} color="#fff" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => navigation.navigate("History")}
-          style={{ padding: 10 }}
-        >
-          <Entypo name="clipboard" size={28} color="#fff" />
-        </TouchableOpacity>
-      </View>
-
-      <StatusBar style="light" />
+      <StatusBar style={theme.statusBar} />
     </View>
   );
 };
@@ -50,22 +42,19 @@ export const Home = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0a0f1f",
-    paddingHorizontal: 24,
+    paddingHorizontal: 34,
   },
   header: {
-    paddingTop: 60,
+    paddingTop: 120,
     alignItems: "center",
   },
   title: {
     fontSize: 46,
     fontWeight: "bold",
-    color: "#fff",
     textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
-    color: "#a0bac7",
     textAlign: "center",
     marginTop: 12,
     lineHeight: 22,
@@ -77,19 +66,12 @@ const styles = StyleSheet.create({
     marginBottom: 100,
   },
   button: {
-    backgroundColor: "#000",
     borderRadius: 30,
     paddingVertical: 12,
     paddingHorizontal: 32,
   },
   buttonText: {
-    color: "#fff",
     fontWeight: "bold",
     fontSize: 16,
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingBottom: 30,
   },
 });

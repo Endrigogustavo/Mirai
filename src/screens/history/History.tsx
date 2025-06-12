@@ -9,6 +9,7 @@ import {
 import { FontAwesome, Entypo, MaterialIcons } from "@expo/vector-icons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../../routes/Routes";
+import { useTheme } from "../../context/themeContext";
 
 const projects = [
   { id: "1", title: "Projeto A - TRL 3" },
@@ -19,23 +20,29 @@ const projects = [
 
 export const History = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const { theme } = useTheme();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Top Bar */}
       <View style={styles.header}>
         <TouchableOpacity>
-          <MaterialIcons name="arrow-back" size={35} color="#385e96" />
+          <MaterialIcons name="arrow-back" size={35} color={theme.arrow} />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Histórico do TRL</Text>
+        <Text style={[styles.headerText, { color: theme.text }]}>
+          Histórico do TRL
+        </Text>
       </View>
 
       {/* Central Icon */}
       <View style={styles.iconWrapper}>
-        <Entypo name="clipboard" size={88} color="#7eb0ff" />
+        <Entypo name="clipboard" size={88} color={theme.icon} />
       </View>
 
       {/* Title */}
-      <Text style={styles.subtitle}>Seus resultados anteriores:</Text>
+      <Text style={[styles.subtitle, { color: theme.text }]}>
+        Seus resultados anteriores:
+      </Text>
 
       {/* List */}
       <FlatList
@@ -44,32 +51,26 @@ export const History = () => {
         contentContainerStyle={styles.list}
         renderItem={({ item }) => (
           <View style={styles.listItem}>
-            <View style={styles.circle}>
-              <Text style={styles.circleText}>{item.id}</Text>
+            <View
+              style={[
+                styles.circle,
+                {
+                  borderColor: theme.icon,
+                },
+              ]}
+            >
+              <Text style={[styles.circleText, { color: theme.icon }]}>
+                {item.id}
+              </Text>
             </View>
-            <Text style={styles.projectText}>{item.title}</Text>
+            <Text style={[styles.projectText, { color: theme.text }]}>
+              {item.title}
+            </Text>
           </View>
         )}
       />
 
-      {/* Footer */}
-      <View style={styles.footer}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Home")}
-          style={{ padding: 10 }}
-        >
-          <FontAwesome name="home" size={28} color="#fff" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => navigation.navigate("History")}
-          style={{ padding: 10 }}
-        >
-          <Entypo name="clipboard" size={28} color="#fff" />
-        </TouchableOpacity>
-      </View>
-
-      <StatusBar style="light" />
+      <StatusBar style={theme.mode === "light" ? "dark" : "light"} />
     </View>
   );
 };
@@ -77,7 +78,6 @@ export const History = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0a0f1f",
     paddingHorizontal: 24,
     paddingTop: 40,
   },
@@ -87,7 +87,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   headerText: {
-    color: "#fff",
     fontSize: 20,
     fontWeight: "bold",
   },
@@ -98,7 +97,6 @@ const styles = StyleSheet.create({
   subtitle: {
     marginTop: 50,
     fontSize: 20,
-    color: "#fff",
     textAlign: "center",
     fontWeight: "bold",
   },
@@ -115,24 +113,15 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 32,
     borderWidth: 1,
-    borderColor: "#7eb0ff",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
   },
   circleText: {
-    color: "#7eb0ff",
     fontWeight: "bold",
   },
   projectText: {
-    color: "#fff",
     fontWeight: "bold",
     fontSize: 15,
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingBottom: 30,
-    marginTop: "auto",
   },
 });

@@ -1,36 +1,49 @@
-// src/screens/QuestionScreen.tsx
-
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { RootStackParamList } from "../../routes/Routes";
+import { useTheme } from "../../context/themeContext";
 
 export const Forms: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [selected, setSelected] = useState<number | null>(1);
+  const { theme, toggleTheme } = useTheme();
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      {/* Botão para alternar tema */}
       <TouchableOpacity
-        style={styles.backButton}
+        style={{ position: "absolute", top: 20, right: 20 }}
+        onPress={toggleTheme}
+      >
+        <Icon name="moon" size={24} color={theme.icon} />
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.backButton, { backgroundColor: theme }]}
         onPress={() => navigation.navigate("Home")}
       >
-        <Icon name="arrow-back" size={24} color="#fff" />
+        <Icon name="arrow-back" size={24} color={theme.icon} />
       </TouchableOpacity>
 
       <View style={styles.iconContainer}>
-        <View style={styles.glow}>
+        <View
+          style={[
+            styles.glow,
+            { backgroundColor: theme }, // use buttonBackground para glow
+          ]}
+        >
           <Icon name="document-text-outline" size={150} color="#3b9eff" />
         </View>
       </View>
 
-      <Text style={styles.question}>
+      <Text style={[styles.question, { color: theme.text }]}>
         A tecnologia foi conceituada e seus{"\n"}
         princípios básicos foram observados?
       </Text>
 
-      <Text style={styles.subtext}>
+      <Text style={[styles.subtext, { color: theme.subtitle }]}>
         (Ex: você sabe cientificamente que ela{"\n"}pode funcionar?)
       </Text>
 
@@ -39,19 +52,35 @@ export const Forms: React.FC = () => {
           <TouchableOpacity
             key={num}
             onPress={() => setSelected(num)}
-            style={[styles.circle, selected === num && styles.selectedCircle]}
+            style={[
+              styles.circle,
+              {
+                backgroundColor:
+                  selected === num ? theme.buttonText : theme.circle,
+              },
+            ]}
           >
-            <Text style={styles.number}>{num}</Text>
+            <Text
+              style={[
+                styles.number,
+                { color: selected === num ? theme.buttonBackground : theme.background },
+              ]}
+            >
+              {num}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
 
       <TouchableOpacity
-        style={styles.returnButton}
+        style={[
+          styles.returnButton,
+          { backgroundColor: theme, borderRadius: 8, padding: 10 },
+        ]}
         onPress={() => navigation.navigate("Result")}
       >
-        <Text style={styles.returnText}>Proximo</Text>
-        <Icon name="chevron-forward-outline" size={32} color="#fff" />
+        <Text style={[styles.returnText, { color: theme.text }]}>Proximo</Text>
+        <Icon name="chevron-forward-outline" size={32} color={theme.text} />
       </TouchableOpacity>
     </View>
   );
@@ -60,12 +89,11 @@ export const Forms: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0B1023",
     padding: 24,
     alignItems: "center",
   },
   backButton: {
-    marginTop: 20,
+    marginTop: 35,
     alignSelf: "flex-start",
   },
   iconContainer: {
@@ -73,20 +101,16 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
   glow: {
-    backgroundColor: "#1D2A50",
     borderRadius: 50,
     padding: 20,
   },
   question: {
-    color: "#a0bac7",
     fontSize: 16,
-
     textAlign: "center",
     marginBottom: 10,
   },
   subtext: {
     fontSize: 16,
-    color: "#a0bac7",
     textAlign: "center",
     marginBottom: 30,
   },
@@ -100,19 +124,11 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#1D2A50",
     alignItems: "center",
     justifyContent: "center",
   },
-  selectedCircle: {
-    backgroundColor: "#3B9EFF",
-  },
   number: {
-    color: "#fff",
     fontWeight: "bold",
-  },
-  face: {
-    fontSize: 18,
   },
   returnButton: {
     marginTop: 50,
@@ -121,7 +137,6 @@ const styles = StyleSheet.create({
     gap: 230,
   },
   returnText: {
-    color: "#fff",
     fontSize: 18,
   },
 });
