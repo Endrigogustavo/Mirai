@@ -17,7 +17,10 @@ export const Settings = () => {
   };
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: theme.background }]}
+      contentContainerStyle={styles.contentContainer}
+    >
       <Text style={[styles.headerText, { color: theme.text }]}>Configurações</Text>
 
       {/* Seção de Preferências */}
@@ -64,8 +67,7 @@ export const Settings = () => {
       <List.Section style={styles.section}>
         <List.Subheader style={[styles.subheader, { color: theme.text }]}>Calculadora</List.Subheader>
 
-        {[
-          { title: "Reiniciar Avaliação", icon: "refresh" },
+        {[{ title: "Reiniciar Avaliação", icon: "refresh" },
           { title: "Histórico de Avaliações", icon: "history" },
           { title: "Editar Parâmetros", icon: "tune" },
           { title: "Ajuda sobre os Critérios", icon: "help-circle-outline" },
@@ -94,6 +96,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: Platform.OS === "ios" ? 60 : 40,
     paddingHorizontal: 24,
+  },
+  contentContainer: {
+    paddingBottom: 100,  // Ajuste o valor conforme necessário para dar espaço abaixo
   },
   headerText: {
     fontSize: 34,
