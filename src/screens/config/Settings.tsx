@@ -1,6 +1,6 @@
 import React from "react";
 import { View, ScrollView, Alert, StyleSheet, Platform } from "react-native";
-import { useTheme } from "../../context/themeContext";
+import { useTheme } from "../../context/ThemeContext";
 import {
   Switch,
   List,

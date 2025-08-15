@@ -16,7 +16,7 @@ import {
 	useRoute,
 	RouteProp,
 } from "@react-navigation/native";
-import { useTheme } from "../../context/themeContext";
+import { useTheme } from "../../context/ThemeContext";
 
 type ResultScreenRouteProp = RouteProp<RootStackParamList, "Result">;
 

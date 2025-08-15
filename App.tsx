@@ -1,5 +1,5 @@
 import React from "react";
-import { ThemeProvider } from "./src/context/themeContext";
+import { ThemeProvider } from "./src/context/ThemeContext";
 import {Routes} from "./src/routes/Routes";
 
 export default function App() {

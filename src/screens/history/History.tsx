@@ -9,7 +9,7 @@ import {
 import { FontAwesome, Entypo, MaterialIcons } from "@expo/vector-icons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../../routes/Routes";
-import { useTheme } from "../../context/themeContext";
+import { useTheme } from "../../context/ThemeContext";
 import projects from '../../database/project.json';
 
 

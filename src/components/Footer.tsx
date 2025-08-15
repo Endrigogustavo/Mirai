@@ -3,7 +3,7 @@ import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { FontAwesome, Entypo, Ionicons } from "@expo/vector-icons";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "../routes/Routes";
-import { useTheme } from "../context/themeContext";
+import { useTheme } from "../context/ThemeContext";
 
 export const Footer = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
