@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Calculadora_TRL",
-    "slug": "Calculadora_TRL",
+    "name": "Mirai",
+    "slug": "Mirai",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.Calculadora-TRL"
+      "bundleIdentifier": "com.mirai.Calculadora-TRL"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +22,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.Calculadora_TRL"
+      "package": "com.mirai.Calculadora_TRL"
     },
     "web": {
       "favicon": "./assets/favicon.png"
