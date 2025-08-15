@@ -1,4 +1,3 @@
-import React from "react";
 import { View, ScrollView, Alert, StyleSheet, Platform } from "react-native";
 import { useTheme } from "../../context/ThemeContext";
 import {
@@ -98,7 +97,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   contentContainer: {
-    paddingBottom: 100,  // Ajuste o valor conforme necessário para dar espaço abaixo
+    paddingBottom: 100,
   },
   headerText: {
     fontSize: 34,

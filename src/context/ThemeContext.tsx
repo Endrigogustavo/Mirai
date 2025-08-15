@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { lightTheme, darkTheme } from "../theme/themes";
 
 const ThemeContext = createContext<any>(null);

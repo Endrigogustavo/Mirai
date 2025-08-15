@@ -1,4 +1,3 @@
-import React from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { FontAwesome, Entypo, Ionicons } from "@expo/vector-icons";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
