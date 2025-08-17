@@ -42,7 +42,6 @@ export const Home = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 34,
   },
   header: {
     paddingTop: 120,

@@ -14,6 +14,8 @@ import { StatusBar } from "expo-status-bar";
 import { useTheme } from "../../context/ThemeContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth } from "../../config/firebaseConfig";
 
 export const SignUp = () => {
   const { theme } = useTheme();
@@ -25,23 +27,54 @@ export const SignUp = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSignUp = () => {
-    if (loading) return;
-    setLoading(true);
-
-    if (!name || !email || !password || password !== confirmPassword) {
-      Alert.alert("Erro", "Por favor, preencha todos os campos corretamente.");
-      setLoading(false);
+  async function handleSignUp() {
+    if (!name || !email || !password || !confirmPassword) {
+      Alert.alert("Erro", "Por favor, preencha todos os campos.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      Alert.alert("Erro", "As senhas não coincidem.");
       return;
     }
 
-    setTimeout(() => {
-      console.log("Usuário cadastrado (simulado):", { name, email });
-      Alert.alert("Sucesso!", "Cadastro realizado com sucesso.");
+    setLoading(true);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      await updateProfile(user, {
+        displayName: name,
+      });
+
+      Alert.alert(
+        "Sucesso!",
+        "Sua conta foi criada. Agora você pode fazer o login.",
+        [
+          { 
+            text: "OK", 
+            onPress: () => navigation.navigate("Login" as never) 
+          }
+        ]
+      );
+
+    } catch (error: any) {
+      console.error("Erro no cadastro:", error.code);
+      let errorMessage = "Ocorreu um erro ao criar a conta.";
+      
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = "Este e-mail já está em uso por outra conta.";
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = "O formato do e-mail é inválido.";
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = "A senha é muito fraca. Use pelo menos 6 caracteres.";
+      }
+      
+      Alert.alert("Erro de Cadastro", errorMessage);
+
+    } finally {
       setLoading(false);
-      navigation.goBack();
-    }, 1000);
-  };
+    }
+  }
 
   return (
     <KeyboardAvoidingView
@@ -160,7 +193,7 @@ export const SignUp = () => {
           disabled={loading}
         >
           <Text style={[styles.buttonText, { color: theme.textPrimary }]}>
-            Cadastrar
+            {loading ? "Cadastrando..." : "Cadastrar"}
           </Text>
         </TouchableOpacity>
       </View>

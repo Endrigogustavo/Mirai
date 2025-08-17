@@ -15,6 +15,9 @@ import { useTheme } from "../../context/ThemeContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../config/firebaseConfig";
+
 export const Login = () => {
   const { theme } = useTheme();
   const navigation = useNavigation();
@@ -22,6 +25,46 @@ export const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Erro", "Por favor, preencha o e-mail e a senha.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      Alert.alert("Sucesso!", "O Login foi realizado com sucesso.", [
+        {
+          text: "OK",
+          onPress: () => navigation.navigate("Home" as never),
+        },
+      ]);
+    } catch (error: any) {
+      console.error("Erro de login:", error.code);
+      let errorMessage = "Ocorreu um erro ao tentar fazer login.";
+
+      if (
+        error.code === "auth/user-not-found" ||
+        error.code === "auth/wrong-password" ||
+        error.code === "auth/invalid-credential"
+      ) {
+        errorMessage = "E-mail ou senha inválidos.";
+      } else if (error.code === "auth/invalid-email") {
+        errorMessage = "O formato do e-mail é inválido.";
+      }
+
+      Alert.alert("Erro de Login", errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -86,11 +129,11 @@ export const Login = () => {
               styles.buttonPrimary,
               { backgroundColor: theme.primary },
             ]}
-            onPress={() => navigation.navigate("Home" as never)}
+            onPress={handleLogin}
             disabled={loading}
           >
             <Text style={[styles.buttonText, { color: theme.textPrimary }]}>
-              Entrar
+              {loading ? "Entrando..." : "Entrar"}
             </Text>
           </TouchableOpacity>
 
