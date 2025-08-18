@@ -6,6 +6,7 @@ import { RootStackParamList } from "../../routes/Routes";
 import { useTheme } from "../../context/ThemeContext";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../../config/firebaseConfig";
+import { ActivityIndicator } from "react-native-paper";
 
 const steps = [
   {
@@ -71,9 +72,22 @@ const steps = [
   },
 ];
 
+const PASSING_THRESHOLD = 3;
+const questionToTrlMap = {
+  0: 1,
+  1: 2,
+  2: 3,
+  3: 4,
+  4: 5,
+  5: 6,
+  6: 7,
+  7: 8,
+  8: 9,
+};
+
 export const Forms: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  	const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(
@@ -81,17 +95,33 @@ export const Forms: React.FC = () => {
   );
   const [loading, setLoading] = useState(false);
 
+  const calculateTRL = (currentAnswers: (number | null)[]) => {
+    let achievedTRL = 0;
+    for (let i = 0; i < currentAnswers.length; i++) {
+      const answer = currentAnswers[i];
+      if (answer === null || answer < PASSING_THRESHOLD) {
+        break;
+      }
+      achievedTRL = questionToTrlMap[i as keyof typeof questionToTrlMap];
+    }
+    return achievedTRL;
+  };
+
   const handleSubmit = async () => {
     const user = auth.currentUser;
 
     if (!user) {
       Alert.alert(
         "Erro de Autenticação",
-        "Você precisa estar logado para salvar os resultados. Redirecionando para o login.",
+        "Você precisa estar logado para salvar os resultados.",
         [{ text: "OK", onPress: () => navigation.navigate("Login" as never) }]
       );
       return;
     }
+
+    const finalTRLValue = calculateTRL(answers);
+
+    const finalTRLLabel = finalTRLValue > 0 ? `TRL ${finalTRLValue}` : "TRL 0";
 
     setLoading(true);
     try {
@@ -99,7 +129,7 @@ export const Forms: React.FC = () => {
         userId: user.uid,
         answers: answers,
         createdAt: serverTimestamp(),
-        trlLevel: steps[currentStep].level,
+        trlLevel: finalTRLLabel,
         title: `Avaliação TRL - ${new Date().toLocaleDateString()}`,
       });
 
@@ -200,7 +230,6 @@ export const Forms: React.FC = () => {
         ))}
       </View>
 
-      {/* Botões Voltar e Próximo */}
       <View style={styles.navigationButtons}>
         {currentStep > 0 && (
           <TouchableOpacity
