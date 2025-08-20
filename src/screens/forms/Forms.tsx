@@ -1,12 +1,26 @@
 import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  ActivityIndicator,
+  Platform,
+  ScrollView,
+} from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { RootStackParamList } from "../../routes/Routes";
 import { useTheme } from "../../context/ThemeContext";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../../config/firebaseConfig";
-import { ActivityIndicator } from "react-native-paper";
+
+import {
+  InterstitialAd,
+  AdEventType,
+  TestIds,
+} from "react-native-google-mobile-ads";
 
 const steps = [
   {
@@ -85,15 +99,48 @@ const questionToTrlMap = {
   8: 9,
 };
 
+
+const adUnitId = __DEV__
+	? TestIds.INTERSTITIAL
+	: (process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID as string);
+
+const interstitial = InterstitialAd.createForAdRequest(adUnitId);
+
 export const Forms: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(
     Array(steps.length).fill(null)
   );
   const [loading, setLoading] = useState(false);
+  const [adLoaded, setAdLoaded] = useState(false);
+
+  useEffect(() => {
+    const unsubscribeLoaded = interstitial.addAdEventListener(
+      AdEventType.LOADED,
+      () => {
+        setAdLoaded(true);
+        console.log("Anúncio carregado com sucesso.");
+      }
+    );
+    interstitial.load();
+    return unsubscribeLoaded;
+  }, []);
+
+  useEffect(() => {
+    const unsubscribeClosed = interstitial.addAdEventListener(
+      AdEventType.CLOSED,
+      () => {
+        console.log("Anúncio fechado. Salvando dados e navegando...");
+        setAdLoaded(false);
+        saveDataAndNavigate(); // Ação principal ocorre DEPOIS de fechar o anúncio
+        interstitial.load(); // Pré-carrega o próximo anúncio
+      }
+    );
+    return unsubscribeClosed;
+  }, [answers]);
 
   const calculateTRL = (currentAnswers: (number | null)[]) => {
     let achievedTRL = 0;
@@ -107,43 +154,46 @@ export const Forms: React.FC = () => {
     return achievedTRL;
   };
 
-  const handleSubmit = async () => {
+  const saveDataAndNavigate = async () => {
     const user = auth.currentUser;
-
     if (!user) {
-      Alert.alert(
-        "Erro de Autenticação",
-        "Você precisa estar logado para salvar os resultados.",
-        [{ text: "OK", onPress: () => navigation.navigate("Login" as never) }]
-      );
+      setLoading(false);
+      Alert.alert("Erro de Autenticação", "Você não está logado.");
       return;
     }
 
     const finalTRLValue = calculateTRL(answers);
-
     const finalTRLLabel = finalTRLValue > 0 ? `TRL ${finalTRLValue}` : "TRL 0";
 
-    setLoading(true);
     try {
-      const docRef = await addDoc(collection(db, "results"), {
+      await addDoc(collection(db, "results"), {
         userId: user.uid,
         answers: answers,
         createdAt: serverTimestamp(),
         trlLevel: finalTRLLabel,
         title: `Avaliação TRL - ${new Date().toLocaleDateString()}`,
       });
-
-      console.log("Resultado salvo com o ID: ", docRef.id);
-      Alert.alert("Sucesso!", "Seu resultado foi salvo com sucesso.");
       navigation.navigate("Result", { answers });
     } catch (e) {
       console.error("Erro ao adicionar documento: ", e);
-      Alert.alert(
-        "Erro no Servidor",
-        "Não foi possível salvar seu resultado. Verifique sua conexão e tente novamente."
-      );
+      Alert.alert("Erro", "Não foi possível salvar seu resultado.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    if (adLoaded) {
+      try {
+        await interstitial.show();
+      } catch (error) {
+        console.warn("Erro ao mostrar anúncio, navegando diretamente.", error);
+        saveDataAndNavigate();
+      }
+    } else {
+      console.log("Anúncio não carregado a tempo. Navegando diretamente.");
+      saveDataAndNavigate();
     }
   };
 
@@ -172,96 +222,89 @@ export const Forms: React.FC = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      {/* Botão alternar tema */}
       <TouchableOpacity
-        style={{ position: "absolute", top: 20, right: 20 }}
-        onPress={toggleTheme}
-      ></TouchableOpacity>
-
-      {/* Botão voltar para Home */}
-      <TouchableOpacity
-        style={[styles.backButton, { backgroundColor: theme }]}
-        onPress={() => navigation.navigate("Home")}
+        style={styles.backButton}
+        onPress={() => navigation.navigate("Home" as never)}
       >
-        <Icon name="arrow-back" size={24} color={theme.icon} />
+        <Icon name="arrow-back" size={24} color={theme.text} />
       </TouchableOpacity>
 
-      <View style={styles.iconContainer}>
-        <View style={[styles.glow, { backgroundColor: theme }]}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.iconContainer}>
           <Icon name="document-text-outline" size={150} color="#3b9eff" />
         </View>
-      </View>
-
-      <Text style={[styles.question, { color: theme.text }]}>
-        {step.question}
-      </Text>
-
-      <Text style={[styles.subtext, { color: theme.subtitle }]}>
-        {step.subtext}
-      </Text>
-
-      <View style={styles.ratingContainer}>
-        {[1, 2, 3, 4, 5].map((num) => (
-          <TouchableOpacity
-            key={num}
-            onPress={() => handleSelect(num)}
-            style={[
-              styles.circle,
-              {
-                backgroundColor:
-                  selected === num ? theme.buttonText : theme.circle,
-              },
-            ]}
-          >
-            <Text
+        <Text style={[styles.question, { color: theme.text }]}>
+          {step.question}
+        </Text>
+        <Text style={[styles.subtext, { color: theme.subtitle }]}>
+          {step.subtext}
+        </Text>
+        <View style={styles.ratingContainer}>
+          {[1, 2, 3, 4, 5].map((num) => (
+            <TouchableOpacity
+              key={num}
+              onPress={() => handleSelect(num)}
               style={[
-                styles.number,
+                styles.circle,
                 {
-                  color:
-                    selected === num
-                      ? theme.buttonBackground
-                      : theme.background,
+                  backgroundColor:
+                    selected === num ? "#3b9eff" : theme.inputBackground,
                 },
               ]}
             >
-              {num}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+              <Text
+                style={[
+                  styles.number,
+                  { color: selected === num ? "#FFF" : theme.text },
+                ]}
+              >
+                {num}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
 
       <View style={styles.navigationButtons}>
         {currentStep > 0 && (
           <TouchableOpacity
             style={[
-              styles.backStepButton,
-              { backgroundColor: theme, borderRadius: 8, padding: 10 },
+              styles.navButton,
+              { backgroundColor: theme.inputBackground },
             ]}
             onPress={handleBack}
           >
             <Icon name="chevron-back-outline" size={24} color={theme.text} />
-            <Text style={[styles.returnText, { color: theme.text }]}>
+            <Text style={[styles.navButtonText, { color: theme.text }]}>
               Voltar
             </Text>
           </TouchableOpacity>
         )}
-
         <TouchableOpacity
           style={[
-            styles.nextStepButton,
+            styles.navButton,
             {
-              backgroundColor: selected === null ? theme : theme,
-              borderRadius: 8,
-              padding: 10,
+              backgroundColor: "#3b9eff",
+              opacity: selected === null ? 0.5 : 1,
+              marginLeft: currentStep > 0 ? 0 : "auto",
             },
           ]}
           onPress={handleNext}
-          disabled={selected === null}
+          disabled={selected === null || loading}
         >
-          <Text style={[styles.returnText, { color: theme.text }]}>
-            {currentStep === steps.length - 1 ? "Finalizar" : "Próximo"}
-          </Text>
-          <Icon name="chevron-forward-outline" size={24} color={theme.text} />
+          {loading ? (
+            <ActivityIndicator size="small" color="#FFFFFF" />
+          ) : (
+            <>
+              <Text style={[styles.navButtonText, { color: "#FFFFFF" }]}>
+                {currentStep === steps.length - 1 ? "Finalizar" : "Próximo"}
+              </Text>
+              <Icon name="chevron-forward-outline" size={24} color="#FFFFFF" />
+            </>
+          )}
         </TouchableOpacity>
       </View>
     </View>
@@ -271,67 +314,72 @@ export const Forms: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 24,
+    paddingTop: 80,
+    paddingBottom: 160,
   },
   backButton: {
-    marginTop: 35,
-    alignSelf: "flex-start",
+    position: "absolute",
+    top: 60,
+    left: 24,
+    zIndex: 10,
   },
   iconContainer: {
-    marginVertical: 32,
-    marginTop: 40,
-  },
-  glow: {
-    borderRadius: 50,
-    padding: 20,
+    marginBottom: 32,
   },
   question: {
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: "bold",
     textAlign: "center",
     marginBottom: 10,
   },
   subtext: {
-    fontSize: 16,
+    fontSize: 14,
     textAlign: "center",
     marginBottom: 30,
+    lineHeight: 20,
   },
   ratingContainer: {
-    marginTop: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 12,
-  },
-  circle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  number: {
-    fontWeight: "bold",
-  },
-  navigationButtons: {
-    marginTop: 50,
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
     paddingHorizontal: 20,
   },
-  backStepButton: {
-    flexDirection: "row",
+  circle: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 15,
+    justifyContent: "center",
   },
-  nextStepButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 15,
-  },
-  returnText: {
+  number: {
     fontSize: 18,
+    fontWeight: "bold",
+  },
+  navigationButtons: {
+    position: "absolute",
+    bottom: 100,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    paddingHorizontal: 24,
+  },
+  navButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+  },
+  navButtonText: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
