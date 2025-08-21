@@ -45,5 +45,5 @@ Este projeto foi construído com as seguintes tecnologias:
 
 
 # Autores
-| [<img src="https://avatars.githubusercontent.com/u/112558062" width=115><br><sub>Gustavo Mendes Ventieri Mariano</sub>](https://github.com/gustavoventieri/) |  [<img src="https://avatars.githubusercontent.com/u/99838582" width=115><br><sub>Nickolas Maia de Araujo</sub>](https://github.com/nickolss)  |  [<img src="https://avatars.githubusercontent.com/u/113954684?v=4" width=115><br><sub>Endrigo Gustavo Brandão de Oliveira</sub>](https://github.com/Endrigogustavo)
-| :---: | :---: | :---: |
+| [<img src="https://avatars.githubusercontent.com/u/112558062" width=115><br><sub>Gustavo Mendes Ventieri Mariano</sub>](https://github.com/gustavoventieri/) |  [<img src="https://avatars.githubusercontent.com/u/99838582" width=115><br><sub>Nickolas Maia de Araujo</sub>](https://github.com/nickolss)  |  [<img src="https://avatars.githubusercontent.com/u/113954684?v=4" width=115><br><sub>Endrigo Gustavo Brandão de Oliveira</sub>](https://github.com/Endrigogustavo) | [<img src="https://avatars.githubusercontent.com/u/117398755?v=4" width=115><br><sub>Giovanna Aparecida Vivencio Rodrigues</sub>](https://github.com/Gihyaa)
+| :---: | :---: | :---: | :---: |
