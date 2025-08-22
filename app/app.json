@@ -33,6 +33,6 @@
     }
   },
   "react-native-google-mobile-ads": {
-    "android_app_id": "${process.env.EXPO_PUBLIC_ADMOB_APP_ID_ANDROID}"
+    "android_app_id": "EXPO_PUBLIC_ADMOB_APP_ID_ANDROID"
   }
 }
