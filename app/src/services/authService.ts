@@ -1,6 +1,7 @@
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signOut,
   updateProfile,
   UserCredential,
 } from 'firebase/auth';
@@ -56,5 +57,15 @@ export const signInUser = async ({ email, password }: SignInData): Promise<UserC
       friendlyMessage = "O formato do e-mail é inválido.";
     }
     throw new Error(friendlyMessage);
+  }
+};
+
+
+export const signOutUser = async (): Promise<void> => {
+  try {
+    await signOut(auth);
+  } catch (error: any) {
+    console.error("Erro ao sair:", error);
+    throw new Error("Ocorreu um erro ao tentar sair. Tente novamente.");
   }
 };
