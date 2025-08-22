@@ -8,28 +8,33 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
+
 import { useTheme } from "../../context/ThemeContext";
 import { AuthInput } from "../../components/AuthInput";
 import { AuthButton } from "../../components/AuthButton";
 import { signInUser } from "../../services/authService";
 import { styles } from "./Login.styles";
-import { NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "../../routes/Routes";
+
 interface LoginErrors {
   email?: string;
   password?: string;
 }
+
 export const Login = () => {
   const { theme } = useTheme();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<LoginErrors>({});
+
   const handleLogin = async () => {
     const newErrors: LoginErrors = {};
+
     if (!email) newErrors.email = "O e-mail é obrigatório.";
     if (!password) newErrors.password = "A senha é obrigatória.";
 
@@ -42,15 +47,14 @@ export const Login = () => {
     setLoading(true);
     try {
       await signInUser({ email, password });
-      Alert.alert("Sucesso!", "Login realizado com sucesso.", [
-        { text: "OK", onPress: () => navigation.navigate("Home" as never) },
-      ]);
+      navigation.navigate("Home" as never);
     } catch (error: any) {
       Alert.alert("Erro de Login", error.message);
     } finally {
       setLoading(false);
     }
   };
+
   const handleInputChange =
     (
       setter: React.Dispatch<React.SetStateAction<string>>,
@@ -62,6 +66,7 @@ export const Login = () => {
         setErrors((prev) => ({ ...prev, [field]: undefined }));
       }
     };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -72,7 +77,7 @@ export const Login = () => {
           source={require("../../../assets/mirai_icon.png")}
           style={styles.logo}
         />
-        code Code
+
         <AuthInput
           iconName="email-outline"
           placeholder="E-mail"
@@ -82,6 +87,7 @@ export const Login = () => {
           autoCapitalize="none"
         />
         {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+
         <AuthInput
           iconName="key-variant"
           placeholder="Senha"
@@ -92,18 +98,16 @@ export const Login = () => {
         {errors.password && (
           <Text style={styles.errorText}>{errors.password}</Text>
         )}
+
         <View style={styles.buttonsContainer}>
-          <AuthButton
-            title={loading ? "Entrando..." : "Entrar"}
-            onPress={handleLogin}
-            loading={loading}
-          />
+          <AuthButton title="Entrar" onPress={handleLogin} loading={loading} />
           <AuthButton
             title="Cadastrar"
             variant="secondary"
             onPress={() => navigation.navigate("SignUp" as never)}
           />
         </View>
+
         <TouchableOpacity
           style={styles.forgotPasswordButton}
           onPress={() => navigation.navigate("ForgotPassword" as never)}
