@@ -1,9 +1,9 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
-import { FontAwesome, Entypo } from "@expo/vector-icons";
+import {  Text, View, TouchableOpacity } from "react-native";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../../routes/Routes";
 import { useTheme } from "../../context/ThemeContext";
+import { styles } from "./Home.styles";
 
 
 export const Home = () => {
@@ -38,39 +38,3 @@ export const Home = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    paddingTop: 120,
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 46,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: "center",
-    marginTop: 12,
-    lineHeight: 22,
-  },
-  centerContent: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 100,
-  },
-  button: {
-    borderRadius: 30,
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-  },
-  buttonText: {
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-});

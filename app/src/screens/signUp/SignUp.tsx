@@ -1,21 +1,30 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
-  StyleSheet,
-  Text,
   View,
+  Text,
+  Image,
   TouchableOpacity,
-  TextInput,
   KeyboardAvoidingView,
   Platform,
-  Image,
+  ScrollView,
   Alert,
 } from "react-native";
-import { StatusBar } from "expo-status-bar";
-import { useTheme } from "../../context/ThemeContext";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth } from "../../config/firebaseConfig";
+import { StatusBar } from "expo-status-bar";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useTheme } from "../../context/ThemeContext";
+import { AuthInput } from "../../components/AuthInput";
+import { AuthButton } from "../../components/AuthButton";
+import { signUpUser } from "../../services/authService";
+import { validatePassword } from "../../utils/validators";
+import { styles } from "./SignUp.styles";
+
+interface FormErrors {
+  name?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+}
 
 export const SignUp = () => {
   const { theme } = useTheme();
@@ -26,235 +35,138 @@ export const SignUp = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<FormErrors>({});
 
-  async function handleSignUp() {
-    if (!name || !email || !password || !confirmPassword) {
-      Alert.alert("Erro", "Por favor, preencha todos os campos.");
-      return;
+  const handleSignUp = async () => {
+    const newErrors: FormErrors = {};
+
+    if (!name) newErrors.name = "O nome completo é obrigatório.";
+    if (!email) newErrors.email = "O e-mail é obrigatório.";
+
+    if (!password) {
+      newErrors.password = "A senha é obrigatória.";
+    } else {
+      const passwordError = validatePassword(password);
+      if (passwordError) {
+        newErrors.password = passwordError;
+      }
     }
+
     if (password !== confirmPassword) {
-      Alert.alert("Erro", "As senhas não coincidem.");
+      newErrors.confirmPassword = "As senhas não coincidem.";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
+    setErrors({});
     setLoading(true);
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      await updateProfile(user, {
-        displayName: name,
-      });
-
+      await signUpUser({ name, email, password });
       Alert.alert(
         "Sucesso!",
         "Sua conta foi criada. Agora você pode fazer o login.",
-        [
-          { 
-            text: "OK", 
-            onPress: () => navigation.navigate("Login" as never) 
-          }
-        ]
+        [{ text: "OK", onPress: () => navigation.navigate("Login" as never) }]
       );
-
     } catch (error: any) {
-      console.error("Erro no cadastro:", error.code);
-      let errorMessage = "Ocorreu um erro ao criar a conta.";
-      
-      if (error.code === 'auth/email-already-in-use') {
-        errorMessage = "Este e-mail já está em uso por outra conta.";
-      } else if (error.code === 'auth/invalid-email') {
-        errorMessage = "O formato do e-mail é inválido.";
-      } else if (error.code === 'auth/weak-password') {
-        errorMessage = "A senha é muito fraca. Use pelo menos 6 caracteres.";
-      }
-      
-      Alert.alert("Erro de Cadastro", errorMessage);
-
+      Alert.alert("Erro de Cadastro", error.message);
     } finally {
       setLoading(false);
     }
-  }
+  };
+
+  const handleInputChange =
+    (
+      setter: React.Dispatch<React.SetStateAction<string>>,
+      field: keyof FormErrors
+    ) =>
+    (text: string) => {
+      setter(text);
+      if (errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    };
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={[styles.container, { backgroundColor: theme.background }]}
     >
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}
-      >
-        <MaterialCommunityIcons
-          name="arrow-left"
-          size={28}
-          color={theme.text}
-        />
-      </TouchableOpacity>
-
-      <View style={styles.content}>
-        <Image
-          source={require("../../../assets/mirai_icon.png")}
-          style={styles.logo}
-        />
-
-        <Text style={[styles.title, { color: theme.textPrimary }]}>
-          Cadastre-se!
-        </Text>
-
-        <View
-          style={[
-            styles.inputContainer,
-            { backgroundColor: theme.inputBackground },
-          ]}
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
         >
           <MaterialCommunityIcons
-            name="account-outline"
-            size={22}
-            color={theme.iconColor}
-            style={styles.icon}
+            name="arrow-left"
+            size={28}
+            color={theme.text}
           />
-          <TextInput
-            style={[styles.input, { color: theme.text }]}
+        </TouchableOpacity>
+
+        <View style={styles.content}>
+          <Image
+            source={require("../../../assets/mirai_icon.png")}
+            style={styles.logo}
+          />
+          <Text style={[styles.title, { color: theme.textPrimary }]}>
+            Cadastre-se!
+          </Text>
+
+          <AuthInput
+            iconName="account-outline"
             placeholder="Nome completo"
-            placeholderTextColor={theme.subtitle}
             value={name}
-            onChangeText={setName}
+            onChangeText={handleInputChange(setName, "name")}
           />
-        </View>
-        <View
-          style={[
-            styles.inputContainer,
-            { backgroundColor: theme.inputBackground },
-          ]}
-        >
-          <MaterialCommunityIcons
-            name="email-outline"
-            size={22}
-            color={theme.iconColor}
-            style={styles.icon}
-          />
-          <TextInput
-            style={[styles.input, { color: theme.text }]}
+          {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
+
+          <AuthInput
+            iconName="email-outline"
             placeholder="E-mail"
-            placeholderTextColor={theme.subtitle}
             value={email}
-            onChangeText={setEmail}
+            onChangeText={handleInputChange(setEmail, "email")}
             keyboardType="email-address"
             autoCapitalize="none"
           />
-        </View>
-        <View
-          style={[
-            styles.inputContainer,
-            { backgroundColor: theme.inputBackground },
-          ]}
-        >
-          <MaterialCommunityIcons
-            name="key-variant"
-            size={22}
-            color={theme.iconColor}
-            style={styles.icon}
-          />
-          <TextInput
-            style={[styles.input, { color: theme.text }]}
-            placeholder="Senha"
-            placeholderTextColor={theme.subtitle}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-        </View>
-        <View
-          style={[
-            styles.inputContainer,
-            { backgroundColor: theme.inputBackground },
-          ]}
-        >
-          <MaterialCommunityIcons
-            name="check-circle-outline"
-            size={22}
-            color={theme.iconColor}
-            style={styles.icon}
-          />
-          <TextInput
-            style={[styles.input, { color: theme.text }]}
-            placeholder="Confirmar senha"
-            placeholderTextColor={theme.subtitle}
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry
-          />
-        </View>
+          {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
-        <TouchableOpacity
-          style={[styles.button, { backgroundColor: theme.primary }]}
-          onPress={handleSignUp}
-          disabled={loading}
-        >
-          <Text style={[styles.buttonText, { color: theme.textPrimary }]}>
-            {loading ? "Cadastrando..." : "Cadastrar"}
-          </Text>
-        </TouchableOpacity>
-      </View>
+          <AuthInput
+            iconName="key-variant"
+            placeholder="Senha"
+            value={password}
+            onChangeText={handleInputChange(setPassword, "password")}
+            secureTextEntry
+          />
+          {errors.password && (
+            <Text style={styles.errorText}>{errors.password}</Text>
+          )}
+
+          <AuthInput
+            iconName="check-circle-outline"
+            placeholder="Confirmar senha"
+            value={confirmPassword}
+            onChangeText={handleInputChange(
+              setConfirmPassword,
+              "confirmPassword"
+            )}
+            secureTextEntry
+          />
+          {errors.confirmPassword && (
+            <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+          )}
+
+          <AuthButton
+            title="Cadastrar"
+            loading={loading}
+            onPress={handleSignUp}
+          />
+        </View>
+      </ScrollView>
 
       <StatusBar style={theme.statusBar} />
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  backButton: {
-    position: "absolute",
-    top: 60,
-    left: 20,
-    zIndex: 1,
-  },
-  content: {
-    paddingHorizontal: 34,
-  },
-  logo: {
-    width: 150,
-    height: 150,
-    resizeMode: "contain",
-    alignSelf: "center",
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 30,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    height: 55,
-    borderRadius: 30,
-    marginBottom: 15,
-    paddingHorizontal: 15,
-  },
-  icon: {
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    height: "100%",
-    fontSize: 16,
-  },
-  button: {
-    height: 55,
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 20,
-  },
-  buttonText: {
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-});
