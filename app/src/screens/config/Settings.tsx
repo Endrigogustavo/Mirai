@@ -81,8 +81,9 @@ export const Settings = () => {
 
         <Divider style={styles.divider} />
 
-        // TODO - Implementar a funcionalidade de idioma
-        {/* <List.Item
+        {/* TODO As funcionalidades abaixo estão comentadas para implementação futura */}
+        {/* 
+        <List.Item
           title="Alterar Idioma"
           titleStyle={[styles.itemTitle, { color: theme.text }]}
           onPress={() => showComingSoon("Alterar Idioma")}
@@ -91,7 +92,6 @@ export const Settings = () => {
         <Divider style={styles.divider} />
 
 
-        // TODO - Implementar a funcionalidade de notificações
         <List.Item
           title="Notificações"
           titleStyle={[styles.itemTitle, { color: theme.text }]}
@@ -100,7 +100,6 @@ export const Settings = () => {
         />
         <Divider style={styles.divider} />
 
-        // TODO - Implementar a funcionalidade de backup e restauração
         <List.Item
           title="Backup e Restauração"
           titleStyle={[styles.itemTitle, { color: theme.text }]}
@@ -108,10 +107,13 @@ export const Settings = () => {
           left={() => (
             <List.Icon color={theme.icon} icon="cloud-upload-outline" />
           )}
-        /> */}
+        /> 
+        */}
       </List.Section>
 
-      {/* <List.Section style={styles.section}>
+      {/* Seção da Calculadora comentada para implementação futura */}
+      {/* 
+      <List.Section style={styles.section}>
         <List.Subheader style={[styles.subheader, { color: theme.text }]}>
           Calculadora
         </List.Subheader>
@@ -136,7 +138,8 @@ export const Settings = () => {
             {idx < 7 && <Divider style={styles.divider} />}
           </View>
         ))}
-      </List.Section> */}
+      </List.Section> 
+      */}
 
       <List.Section style={styles.section}>
         <List.Subheader style={[styles.subheader, { color: theme.text }]}>

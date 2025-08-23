@@ -1,5 +1,5 @@
 import { NavigationProp, useNavigation } from "@react-navigation/native";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -99,10 +99,9 @@ const questionToTrlMap = {
   8: 9,
 };
 
-
 const adUnitId = __DEV__
-	? TestIds.INTERSTITIAL
-	: (process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID as string);
+  ? TestIds.INTERSTITIAL
+  : (process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID as string);
 
 const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 
@@ -310,4 +309,3 @@ export const Forms: React.FC = () => {
     </View>
   );
 };
-

@@ -3,7 +3,7 @@ import {
   useFocusEffect,
   useNavigation,
 } from "@react-navigation/native";
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   View,
   Text,

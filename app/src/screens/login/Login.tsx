@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
@@ -60,12 +60,12 @@ export const Login = () => {
       setter: React.Dispatch<React.SetStateAction<string>>,
       field: keyof LoginErrors
     ) =>
-    (text: string) => {
-      setter(text);
-      if (errors[field]) {
-        setErrors((prev) => ({ ...prev, [field]: undefined }));
-      }
-    };
+      (text: string) => {
+        setter(text);
+        if (errors[field]) {
+          setErrors((prev) => ({ ...prev, [field]: undefined }));
+        }
+      };
 
   return (
     <KeyboardAvoidingView
