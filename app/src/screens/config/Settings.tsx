@@ -11,7 +11,7 @@ import {
 import { useTheme } from "../../context/ThemeContext";
 import { styles } from "./Settings.styles";
 import { RootStackParamList } from "../../routes/Routes";
-import { signOutUser } from "../../services/authService";
+import { signOutUser, deleteCurrentUserAccount } from "../../services/authService";
 
 export const Settings = () => {
   const { theme, toggleTheme, isDark } = useTheme();
@@ -29,7 +29,6 @@ export const Settings = () => {
         {
           text: "Cancelar",
           style: "cancel",
-          onPress: () => console.log("Logout cancelado"),
         },
         {
           text: "Sair",
@@ -49,6 +48,62 @@ export const Settings = () => {
       ]
     );
   };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      "Excluir Conta Permanentemente",
+      "Esta ação é irreversível. Todos os seus dados serão apagados. Você tem certeza?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Excluir Conta",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteCurrentUserAccount();
+              Alert.alert(
+                "Conta Excluída",
+                "Sua conta e todos os seus dados foram removidos com sucesso."
+              );
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "Login" }],
+              });
+            } catch (error: any) {
+              if (error.message.includes("Sua sessão expirou")) {
+                Alert.alert(
+                  "Sessão Expirada",
+                  "Por segurança, você precisa fazer login novamente antes de poder excluir sua conta.",
+                  [
+                    {
+                      text: "Sair e Fazer Login",
+                      onPress: async () => {
+                        await signOutUser();
+                        navigation.reset({
+                          index: 0,
+                          routes: [{ name: "Login" }],
+                        });
+                      },
+                    },
+                    {
+                      text: "Cancelar",
+                      style: "cancel",
+                    },
+                  ]
+                );
+              } else {
+                Alert.alert("Erro ao Excluir", error.message);
+              }
+            }
+          },
+        },
+      ]
+    );
+  };
+
 
   return (
     <ScrollView
@@ -145,12 +200,25 @@ export const Settings = () => {
         <List.Subheader style={[styles.subheader, { color: theme.text }]}>
           Conta
         </List.Subheader>
+
+        <List.Item
+          title="Excluir Minha Conta"
+          description="Esta ação é permanente"
+          descriptionStyle={{ color: "#D32F2F", opacity: 0.7 }}
+          titleStyle={[styles.itemTitle, { color: "#D32F2F" }]}
+          onPress={handleDeleteAccount}
+          left={() => <List.Icon color={"#D32F2F"} icon="account-remove-outline" />}
+        />
+
+        <Divider style={styles.divider} />
+
         <List.Item
           title="Sair da Conta"
-          titleStyle={[styles.itemTitle, { color: "#D32F2F" }]}
+          titleStyle={[styles.itemTitle, { color: theme.text }]}
           onPress={handleLogout}
-          left={() => <List.Icon color={"#D32F2F"} icon="logout" />}
+          left={() => <List.Icon color={theme.icon} icon="logout" />}
         />
+
       </List.Section>
     </ScrollView>
   );
