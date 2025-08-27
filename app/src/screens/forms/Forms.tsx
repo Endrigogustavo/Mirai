@@ -15,11 +15,6 @@ import { useTheme } from "../../context/ThemeContext";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../../config/firebaseConfig";
 
-import {
-  InterstitialAd,
-  AdEventType,
-  TestIds,
-} from "react-native-google-mobile-ads";
 import { styles } from "./Forms.styles";
 
 const steps = [
@@ -99,11 +94,6 @@ const questionToTrlMap = {
   8: 9,
 };
 
-const adUnitId = __DEV__
-  ? TestIds.INTERSTITIAL
-  : (process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID as string);
-
-const interstitial = InterstitialAd.createForAdRequest(adUnitId);
 
 export const Forms: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -114,32 +104,6 @@ export const Forms: React.FC = () => {
     Array(steps.length).fill(null)
   );
   const [loading, setLoading] = useState(false);
-  const [adLoaded, setAdLoaded] = useState(false);
-
-  useEffect(() => {
-    const unsubscribeLoaded = interstitial.addAdEventListener(
-      AdEventType.LOADED,
-      () => {
-        setAdLoaded(true);
-        console.log("Anúncio carregado com sucesso.");
-      }
-    );
-    interstitial.load();
-    return unsubscribeLoaded;
-  }, []);
-
-  useEffect(() => {
-    const unsubscribeClosed = interstitial.addAdEventListener(
-      AdEventType.CLOSED,
-      () => {
-        console.log("Anúncio fechado. Salvando dados e navegando...");
-        setAdLoaded(false);
-        saveDataAndNavigate();
-        interstitial.load();
-      }
-    );
-    return unsubscribeClosed;
-  }, [answers]);
 
   const calculateTRL = (currentAnswers: (number | null)[]) => {
     let achievedTRL = 0;
@@ -181,19 +145,10 @@ export const Forms: React.FC = () => {
     }
   };
 
+
   const handleSubmit = async () => {
     setLoading(true);
-    if (adLoaded) {
-      try {
-        await interstitial.show();
-      } catch (error) {
-        console.warn("Erro ao mostrar anúncio, navegando diretamente.", error);
-        saveDataAndNavigate();
-      }
-    } else {
-      console.log("Anúncio não carregado a tempo. Navegando diretamente.");
-      saveDataAndNavigate();
-    }
+    await saveDataAndNavigate();
   };
 
   const handleNext = () => {
