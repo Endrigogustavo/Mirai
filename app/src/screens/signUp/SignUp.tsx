@@ -38,21 +38,31 @@ export const SignUp = () => {
   const [errors, setErrors] = useState<FormErrors>({});
 
   const handleSignUp = async () => {
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+    const trimmedConfirmPassword = confirmPassword.trim();
+
+
     const newErrors: FormErrors = {};
 
-    if (!name) newErrors.name = "O nome completo é obrigatório.";
-    if (!email) newErrors.email = "O e-mail é obrigatório.";
+    if (!trimmedName) newErrors.name = "O nome completo é obrigatório.";
+    if (!trimmedEmail) {
+      newErrors.email = "O e-mail é obrigatório.";
+    } else if (/\s/.test(trimmedEmail)) {
+      newErrors.email = "O e-mail não pode conter espaços.";
+    }
 
-    if (!password) {
+    if (!trimmedPassword) {
       newErrors.password = "A senha é obrigatória.";
     } else {
-      const passwordError = validatePassword(password);
+      const passwordError = validatePassword(trimmedPassword);
       if (passwordError) {
         newErrors.password = passwordError;
       }
     }
 
-    if (password !== confirmPassword) {
+    if (trimmedPassword !== trimmedConfirmPassword) {
       newErrors.confirmPassword = "As senhas não coincidem.";
     }
 
@@ -64,7 +74,11 @@ export const SignUp = () => {
     setErrors({});
     setLoading(true);
     try {
-      await signUpUser({ name, email, password });
+      await signUpUser({
+        name: trimmedName,
+        email: trimmedEmail,
+        password: trimmedPassword,
+      });
       Alert.alert(
         "Sucesso!",
         "Sua conta foi criada. Agora você pode fazer o login.",
@@ -82,12 +96,12 @@ export const SignUp = () => {
       setter: React.Dispatch<React.SetStateAction<string>>,
       field: keyof FormErrors
     ) =>
-    (text: string) => {
-      setter(text);
-      if (errors[field]) {
-        setErrors((prev) => ({ ...prev, [field]: undefined }));
-      }
-    };
+      (text: string) => {
+        setter(text);
+        if (errors[field]) {
+          setErrors((prev) => ({ ...prev, [field]: undefined }));
+        }
+      };
 
   return (
     <KeyboardAvoidingView

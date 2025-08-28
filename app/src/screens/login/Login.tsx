@@ -33,10 +33,14 @@ export const Login = () => {
   const [errors, setErrors] = useState<LoginErrors>({});
 
   const handleLogin = async () => {
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+
+
     const newErrors: LoginErrors = {};
 
-    if (!email) newErrors.email = "O e-mail é obrigatório.";
-    if (!password) newErrors.password = "A senha é obrigatória.";
+    if (!trimmedEmail) newErrors.email = "O e-mail é obrigatório.";
+    if (!trimmedPassword) newErrors.password = "A senha é obrigatória.";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -46,7 +50,7 @@ export const Login = () => {
     setErrors({});
     setLoading(true);
     try {
-      await signInUser({ email, password });
+      await signInUser({ email: trimmedEmail, password: trimmedPassword });
       navigation.navigate("Home" as never);
     } catch (error: any) {
       Alert.alert("Erro de Login", error.message);
