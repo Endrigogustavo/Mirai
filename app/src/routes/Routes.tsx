@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SafeAreaView, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import {
   NavigationContainer,
   getFocusedRouteNameFromRoute,
@@ -9,6 +9,7 @@ import { Footer } from "../components/Footer";
 import { Home, History, Forms, Result, Settings } from "../screens";
 import { Login } from "../screens/login/Login";
 import { SignUp } from "../screens/signUp/SignUp";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export type RootStackParamList = {
   Home: undefined;
