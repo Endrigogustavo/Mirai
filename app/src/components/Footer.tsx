@@ -1,4 +1,4 @@
-import { View, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet, Platform } from "react-native";
 import { FontAwesome, Entypo, Ionicons } from "@expo/vector-icons";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "../routes/Routes";
@@ -23,7 +23,7 @@ export const Footer = () => {
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate("History")}>
-        <Entypo name="clipboard" size={28} color={theme.icon} />
+        <FontAwesome name="history" size={30} color={theme.icon} />
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
